@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReFreshAi</title>
+
+  <!-- Stiluri și fonturi -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+  <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet" th:href="@{/css/style.css}">
+
+  <style>
+    .fruite2-img {
+      position: relative;
+    }
+
+    .activate-deactivate-button {
+      top: 10px;
+      right: 10px;
+      z-index: 10;
+    }
+
+    .activate-deactivate-button a {
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+
+  </style>
+
+  <style>
+    body {
+      padding-top: 100px; /* Prevent navbar overlap */
+    }
+    .profile-image {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 3px solid #f3f3f3;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    .profile-header {
+      display: flex;
+      align-items: flex-start; /* Align image and text properly */
+      gap: 40px; /* Increase gap for more spacing */
+      margin-bottom: 20px;
+    }
+    .profile-header-info {
+      flex-grow: 1;
+    }
+    .list-group-item.active {
+      background-color: #007bff;
+      color: white;
+    }
+    .profile-card {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      padding: 20px; /* Add some padding for the card content */
+    }
+    .profile-section-title {
+      font-weight: bold;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+    .profile-info p {
+      font-size: 1rem;
+      margin: 10px 0; /* Increase margin for better spacing */
+    }
+  </style>
+
+</head>
+<body>
+
+<!-- Navbar start -->
+<div th:replace="~{/fragments/navbar :: navbar}"></div>
+<!-- Navbar End -->
+
+<br><br><br>
+<div class="container light-style flex-grow-1 container-p-y">
+  <div class="card profile-card overflow-hidden">
+    <div class="row no-gutters">
+      <div class="col-md-3">
+        <div class="list-group list-group-flush account-settings-links">
+          <a class="list-group-item list-group-item-action" th:href="@{/profile-general}" th:object="${profile}">General</a>
+          <a class="list-group-item list-group-item-action" th:href="@{/change-password}">Change password</a>
+          <a class="list-group-item list-group-item-action" th:href="@{/profile-settings}">Profile Settings</a>
+          <a class="list-group-item list-group-item-action" th:href="@{/profile-articles}">Articles</a>
+          <a class="list-group-item list-group-item-action" th:href="@{/profile-sales}">Sales</a>
+          <a class="list-group-item list-group-item-action" th:href="@{/purchase-history}">Purchase history</a>
+        </div>
+      </div>
+
+      <div class="col-md-9 py-5">
+        <h4>My Articles</h4>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 justify-content-center py-5">
+          <!-- Loop through products posted by this user -->
+          <div th:each="product : ${products}" class="col">
+            <div class="card h-100 rounded position-relative shadow-sm border-0">
+              <!-- Product Image -->
+              <div class="fruite2-img position-relative">
+                <a th:href="@{'/shopDetail-' + ${product.id}}">
+                  <img th:src="@{'data:image/jpeg;base64,' + ${product.base64Image}}"
+                       class="img-fluid w-100 rounded-top card-img-top"
+                       alt="Product Image"
+                       style="object-fit: cover; height: 250px;">
+                </a>
+
+                <!-- Butonul "Activate/Deactivate" poziționat absolut -->
+                <!-- Butonul "Activate/Deactivate" poziționat absolut -->
+                <div class="activate-deactivate-button position-absolute">
+                  <form th:action="@{'/productStatus-' + ${product.id}}"
+                        method="post">
+                    <button type="submit"
+                            class="btn btn-sm btn-success">
+                      <span th:text="${product.status == 'Available' ? 'Deactivate' : 'Activate'}"></span>
+                    </button>
+                  </form>
+                </div>
+
+
+              </div>
+              <!-- Product Info -->
+              <div class="card-body p-4 border border-top-0 rounded-bottom" style="border-color: #f6ba31;">
+                <h5 class="card-title" th:text="${product.title}">Product Title</h5>
+                <p class="card-text text-muted small product-description" th:text="${product.description}">
+                  Product Description
+                </p>
+                <p class="text-dark fs-5 fw-bold mb-0">
+                  <span th:text="${product.price} + ' MDL'"></span>
+                </p>
+
+                <!-- "Change" Button -->
+                <div class="d-flex justify-content-between flex-lg-wrap mt-3">
+                  <a th:href="@{'/editProduct-' + ${product.id}}"
+                     class="btn border border-secondary rounded-pill px-3 text-primary">
+                    Change
+                  </a>
+                  <!-- Delete Button -->
+                  <a th:href="@{'/deleteProduct-' + ${product.id}}"
+                     class="btn border border-danger rounded-pill px-3 text-danger"
+                     onclick="return confirm('Are you sure you want to delete this product?');">
+                    Delete
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message if no products are found -->
+        <div th:if="${products.isEmpty()}">
+          <p class="text-center">No products posted yet.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+</body>
+</html>

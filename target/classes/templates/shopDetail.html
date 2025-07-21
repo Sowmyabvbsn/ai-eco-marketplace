@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <title>DetailsProduct</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link rel="stylesheet"  th:href="@{/css/style.css}">
+    <link rel="stylesheet"  th:href="@{/css/chat.css}">
+
+    <style>
+        .img-container {
+            width: 472px;
+            height: 472px;
+            overflow: hidden;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border: none;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<!-- Navbar start -->
+<div th:replace="~{/fragments/navbar :: navbar}"></div>
+<!-- Navbar End -->
+
+
+<!-- Single Page Header start -->
+<div class="container-fluid page-header py-5">
+    <h1 class="text-center text-white display-6">Product Detail</h1>
+    <ol class="breadcrumb justify-content-center mb-0">
+        <li class="breadcrumb-item"><a href="#">Home</a></li>
+        <li class="breadcrumb-item"><a href="#">Pages</a></li>
+        <li class="breadcrumb-item active text-white">Product Detail</li>
+    </ol>
+</div>
+<!-- Single Page Header End -->
+
+
+<!-- Single Product Start -->
+<div class="container-fluid py-5 mt-1">
+    <div class="container py-4">
+        <div class="row g-4 mb-1">
+            <div class="col-lg-8 col-xl-9">
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="border rounded">
+                            <a href="#">
+                                <div class="img-container">
+                                    <img th:src="@{'data:image/jpeg;base64,' + ${product.base64Image}}" class="img-fluid rounded" alt="Product Image">
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <h3 class="fw-bold mb-3" th:text="${product.title}">Product Title</h3>
+                        <p class="mb-3">Category: <span th:text="${product.category.categoryName}">Category</span></p>
+                        <p class="mb-3">Updated at: <span th:text="${product.datePosted}">Date</span></p>
+                        <p class="mb-3">Posted by: <a th:href="@{/profile/{username}(username=${product.user.username})}" th:text="${product.user.username}">Username</a></p>
+                        <p class="mb-3">Region: <span th:text="${product.location}">Region</span></p>
+                        <h5 class="fw-bold mb-3" th:text="${product.price + ' MDL'}">Price</h5>
+                        <div class="input-group quantity mb-5" style="width: 100px;">
+                            <div class="input-group-btn">
+                                <button class="btn btn-sm btn-minus rounded-circle bg-light border" >
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                            <input type="text" class="form-control form-control-sm text-center border-0" value="1">
+                            <div class="input-group-btn">
+                                <button class="btn btn-sm btn-plus rounded-circle bg-light border">
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <a th:href="@{addToCart}" onclick="addToCart(this)"
+                           th:data-id="${product.id}"
+                           th:data-title="${product.title}"
+                           th:data-quantity="${product.quantity}"
+                           th:data-description="${product.description}"
+                           th:data-category="${product.category.categoryName}"
+                           th:data-price="${product.price}"
+                           th:data-image="${product.base64Image}"
+                           th:data-username="${product.user.username}"
+                           th:data-location="${product.location}"
+                           class="btn border border-secondary rounded-pill px-3 text-primary to-cart-button">
+                            <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
+                        </a>
+                    </div>
+
+                    <script>
+                        document.querySelectorAll('.to-cart-button').forEach(button => {
+                            button.addEventListener('click', function(event) {
+                                event.preventDefault(); // Previne navigarea standard
+
+                                // Colectează informațiile produsului din atributele data-*
+                                const productInfo = {
+                                    id: this.getAttribute('data-id'),
+                                    title: this.getAttribute('data-title'),
+                                    description: this.getAttribute('data-description'),
+                                    quantity: this.getAttribute('data-quantity'),
+                                    category:this.getAttribute('data-category'),
+                                    price: this.getAttribute('data-price'),
+                                    image: this.getAttribute('data-image'),
+                                    username: this.getAttribute('data-username'),
+                                    location: this.getAttribute('data-location')
+                                };
+
+                                // Trimiterea datelor la server prin cererea POST
+                                fetch('/addToCart', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify(productInfo)
+                                })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        console.log('Response:', data);
+                                        // Aici poți adăuga logică pentru a actualiza UI-ul, cum ar fi afișarea unui mesaj de succes
+                                    })
+                            });
+                        });
+
+                    </script>
+
+                    <script>
+                        function addToCart(button) {
+                            // Salvăm conținutul original al butonului (inclusiv iconița)
+                            const originalContent = button.innerHTML;
+
+                            // Schimbă textul la "Added" și păstrează formatul HTML
+                            button.innerHTML = "Added";
+
+                            // Dezactivează butonul temporar pentru a evita multiple click-uri
+                            button.disabled = true;
+
+                            // După 2 secunde, revine la conținutul inițial (text + iconiță)
+                            setTimeout(function() {
+                                button.innerHTML = originalContent;
+                                button.disabled = false; // Reactivăm butonul
+                            }, 1500);
+                        }
+
+
+
+                    </script>
+
+                    <div class="col-lg-12">
+                        <nav>
+                            <div class="nav nav-tabs mb-3">
+                                <button class="nav-link active border-white border-bottom-0" type="button" role="tab"
+                                        id="nav-about-tab" data-bs-toggle="tab" data-bs-target="#nav-about"
+                                        aria-controls="nav-about" aria-selected="true">Description</button>
+                                <button class="nav-link border-white border-bottom-0" type="button" role="tab"
+                                        id="nav-mission-tab" data-bs-toggle="tab" data-bs-target="#nav-mission"
+                                        aria-controls="nav-mission" aria-selected="false">Reviews</button>
+                            </div>
+                        </nav>
+                        <div class="tab-content mb-5">
+                            <div class="tab-pane active" id="nav-about" role="tabpanel" aria-labelledby="nav-about-tab">
+                                <p th:text="${product.description}">Product Description</p>
+                                <div class="px-2">
+                                    <div class="row g-4">
+                                        <div class="col-6">
+                                            <div class="row bg-light align-items-center text-center justify-content-center py-2">
+                                                <div class="col-6">
+                                                    <p class="mb-0">Quantity</p>
+                                                </div>
+                                                <div class="col-6">
+                                                    <p class="mb-0" th:text="${product.quantity}">1 kg</p>
+                                                </div>
+                                            </div>
+                                            <div class="row text-center align-items-center justify-content-center py-2">
+                                                <div class="col-6">
+                                                    <p class="mb-0">Address</p>
+                                                </div>
+                                                <div class="col-6">
+                                                    <p class="mb-0" th:text="${product.location}">Strada 31 august, casa 10</p>
+                                                </div>
+                                            </div>
+                                            <div class="row bg-light text-center align-items-center justify-content-center py-2">
+                                                <div class="col-6">
+                                                    <p class="mb-0">Contact</p>
+                                                </div>
+                                                <div class="col-6">
+                                                    <p class="mb-0" th:text="${product.user.email}">user@gmail.com</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="nav-mission" role="tabpanel" aria-labelledby="nav-mission-tab">
+                                <div th:if="${reviews != null}" th:each="review : ${reviews}" class="d-flex mb-4">
+                                    <!-- User Avatar -->
+                                    <img th:if="${review.user.base64Image != null}" th:src="'data:image/jpeg;base64,' + ${review.user.base64Image}"
+                                         class="img-fluid rounded-circle p-3" style="width: 100px; height: 100px;" alt="User Image">
+                                    <img th:unless="${review.user.base64Image != null}" th:src="@{/img/avatar.jpg}"
+                                         class="img-fluid rounded-circle p-3" style="width: 100px; height: 100px;" alt="Default Avatar">
+
+                                    <!-- Review Content -->
+                                    <div class="ms-3">
+                                        <div class="d-flex align-items-center">
+                                            <h5 class="mb-0" th:text="${review.user.name}"></h5>
+                                            <p class="ms-2 text-muted mb-0" style="font-size: 12px;" th:text="${#temporals.format(review.datePosted, 'MMMM d, yyyy')}"></p>
+                                        </div>
+                                        <p class="mt-2" th:text="${review.comment}"></p>
+
+                                        <!-- Buttons for the logged-in user only -->
+                                        <div th:if="${#authentication.name == review.user.email}">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" th:data-bs-target="'#editReviewModal-' + ${review.id}">Edit</button>
+                                            <form action="/delete-review" method="post" class="d-inline">
+                                                <input type="hidden" name="reviewId" th:value="${review.id}">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <!-- Edit Review Modal -->
+                                    <div class="modal fade" th:id="'editReviewModal-' + ${review.id}" tabindex="-1" aria-labelledby="editReviewLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <form action="/update-review" method="post">
+                                                    <div class="modal-header">
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" th:data-bs-target="'#editReviewModal-' + ${review.id}">
+                                                            Edit
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <input type="hidden" name="reviewId" th:value="${review.id}">
+                                                        <div class="form-group">
+                                                            <label for="editComment">Comment</label>
+                                                            <textarea id="editComment" name="comment" class="form-control" th:text="${review.comment}"></textarea>
+                                                        </div>
+                                                        <div class="form-group mt-3">
+                                                            <label for="editRating">Rating (1-5)</label>
+                                                            <input id="editRating" type="number" name="rating" class="form-control" th:value="${review.rating}" min="1" max="5">
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                        <button type="submit" class="btn btn-primary">Save changes</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="tab-pane" id="nav-vision" role="tabpanel">
+                                <p class="text-dark">Tempor erat elitr rebum at clita. Diam dolor diam ipsum et tempor sit. Aliqu diam
+                                    amet diam et eos labore. 3</p>
+                                <p class="mb-0">Diam dolor diam ipsum et tempor sit. Aliqu diam amet diam et eos labore.
+                                    Clita erat ipsum et lorem et sit</p>
+                            </div>
+                        </div>
+                    </div>
+                    <form action="/submit-review" method="post" class="mt-5">
+                        <h4 class="mb-5 fw-bold">Leave a Reply</h4>
+                        <input type="hidden" name="productId" th:value="${product.id}">
+
+                        <div class="row g-4">
+                            <div class="col-lg-12">
+                                <div class="border-bottom rounded">
+                                    <textarea name="comment" class="form-control border-0" cols="30" rows="8" placeholder="Your Review *"></textarea>
+                                </div>
+                            </div>
+                            <div class="col-lg-12">
+                                <div class="border-bottom rounded">
+                                    <input type="number" name="rating" class="form-control border-0" placeholder="Rating (1-5)" min="1" max="5">
+                                </div>
+                            </div>
+                            <div class="col-lg-12 d-flex justify-content-end">
+                                <button type="submit" class="btn btn-outline-primary">Submit Review</button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+            <div class="col-lg-4 col-xl-3">
+                <div class="row g-4 fruite">
+                    <div class="col-lg-12">
+                        <div class="position-relative">
+                            <img th:src="@{/img/banner-fruits.jpg}" class="img-fluid w-100 rounded" alt="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br><br><br><br>
+        <h1 class="fw-bold mb-0">Recommended Products for You</h1>
+        <div class="vesitable">
+            <div class="owl-carousel vegetable-carousel justify-content-center recommended-products">
+                <div th:each="product : ${recommendedProducts}" class="border border-primary rounded position-relative vesitable-item">
+                    <div class="fruite-img">
+                        <img th:src="@{'data:image/jpeg;base64,' + ${product.base64Image}}" class="img-fluid w-100 rounded-top" th:alt="${product.title}">
+                    </div>
+                    <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">
+                        <span th:text="${product.category.categoryName}">Category</span>
+                    </div>
+                    <div class="p-4 pb-0 rounded-bottom">
+                        <h4 class="product-title" th:text="${product.title}">Product Title</h4>
+                        <p class="product-description" th:text="${product.description}">Product Description</p>
+                        <!-- Price div -->
+                        <div class="mb-3">
+                            <p class="text-dark fs-5 fw-bold" th:text="'MDL ' + ${product.price} "></p>
+                        </div>
+
+                        <!-- Add to Cart button div -->
+                        <div>
+                            <a href="#" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary">
+                                <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- If there are no recommendations, show a message -->
+            <div th:if="${#lists.isEmpty(recommendedProducts)}">
+                <p>No recommendations available at the moment.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Single Product End -->
+
+<!-- Chat Support start -->
+<div th:replace="~{/fragments/chat :: chat}"></div>
+<!-- Chat Support End -->
+
+<!-- About start -->
+<div th:replace="~{/fragments/about :: about}"></div>
+<!-- About End -->
+
+<!-- Copyright Start -->
+<div class="container-fluid copyright bg-dark py-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                <span class="text-light"><a href="#"><i class="fas fa-copyright text-light me-2"></i>Your Site Name</a>, All right reserved.</span>
+            </div>
+            <div class="col-md-6 my-auto text-center text-md-end text-white">
+                Designed By <a class="border-bottom" href="https://htmlcodex.com">HTML Codex</a> Distributed By <a class="border-bottom" href="https://themewagon.com">ThemeWagon</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Copyright End -->
+
+
+
+<!-- Back to Top -->
+<a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>
+
+
+<!-- JavaScript Libraries -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="lib/easing/easing.min.js"></script>
+<script src="lib/waypoints/waypoints.min.js"></script>
+<script src="lib/lightbox/js/lightbox.min.js"></script>
+<script src="lib/owlcarousel/owl.carousel.min.js"></script>
+<link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+<link href="lib/owlcarousel/assets/owl.theme.default.min.css" rel="stylesheet">
+
+<script>
+    $(document).ready(function(){
+        $(".vegetable-carousel").owlCarousel({
+            loop: true,
+            margin: 10,
+            nav: true,
+            dots: true,
+            responsive:{
+                0:{ items:1 },
+                600:{ items:2 },
+                1000:{ items:3 }
+            }
+        });
+    });
+</script>
+
+<!-- Template Javascript -->
+<script src="js/main.js"></script>
+<script src="js/chat.js"></script>
+</body>
+
+</html>
