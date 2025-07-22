@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - ReFreshAi</title>
+
+    <!-- Stiluri și fonturi -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet" th:href="@{/css/style.css}">
+
+    <style>
+        body {
+            padding-top: 100px;
+        }
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid #f3f3f3;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .profile-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 40px;
+            margin-bottom: 20px;
+        }
+        .profile-header-info {
+            flex-grow: 1;
+        }
+        .profile-card {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .profile-section-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        .profile-info p {
+            font-size: 1rem;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar start -->
+<div th:replace="~{/fragments/navbar :: navbar}"></div>
+<!-- Navbar End -->
+
+<br><br><br>
+<div class="container">
+    <div class="card profile-card">
+        <div class="card-body">
+            <div class="profile-header">
+                <img th:if="${profile != null && profile.base64Image != null}"
+                     th:src="'data:image/jpeg;base64,' + ${profile.base64Image}"
+                     alt="Profile Image" class="profile-image">
+                <img th:unless="${profile != null && profile.base64Image != null}"
+                     th:src="@{/img/avataruser.jpg}"
+                     alt="Default Profile Image" class="profile-image">
+                <div class="profile-header-info">
+                    <h3 th:text="${user.name != null ? user.name + ' ' + (user.surname ?: '') : user.username}">User Name</h3>
+                    <p class="text-muted">Member since <span th:text="${#temporals.format(user.registerDate, 'MMMM yyyy')}">Date</span></p>
+                    <p th:if="${profile != null && profile.address != null}" class="text-muted">
+                        <i class="fas fa-map-marker-alt"></i> <span th:text="${profile.address}">Location</span>
+                    </p>
+                </div>
+            </div>
+            <hr>
+
+            <h4>Products by this seller</h4>
+            <div class="row g-4 justify-content-center py-3">
+                <div th:each="product : ${products}" class="col-md-6 col-lg-4 col-xl-3">
+                    <a th:href="@{'/shopDetail-' + ${product.id}}" class="text-decoration-none">
+                        <div class="rounded position-relative fruite-item">
+                            <div class="fruite-img">
+                                <img th:src="@{'data:image/jpeg;base64,' + ${product.base64Image}}"
+                                     class="img-fluid w-100 rounded-top" alt="Product Image">
+                            </div>
+                            <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;">
+                                <span th:text="${product.category.categoryName}">Category</span>
+                            </div>
+                            <div class="p-3 border border-secondary border-top-0 rounded-bottom">
+                                <h5 class="product-title" th:text="${product.title}">Product Title</h5>
+                                <p class="product-description" th:text="${product.description}">Product Description</p>
+                                <div class="d-flex justify-content-between flex-lg-wrap">
+                                    <p class="text-dark fs-5 fw-bold mb-0">
+                                        <span th:text="${product.price} + ' MDL'"></span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Message if no products are found -->
+            <div th:if="${products.isEmpty()}" class="text-center py-5">
+                <p class="text-muted">This user hasn't posted any products yet.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

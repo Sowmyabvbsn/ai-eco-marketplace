@@ -34,7 +34,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findByUser(User user, Sort sort);
     @Query("SELECT p FROM Product p WHERE " +
-            "p.status = 'Available' AND " +
+            "(p.status IS NULL OR p.status = 'Available') AND " +
             "(:category IS NULL OR :category = '' OR p.category.categoryName = :category) " +
             "AND (:minPrice IS NULL OR p.price >= :minPrice) " +
             "AND (:maxPrice IS NULL OR p.price <= :maxPrice) " +
@@ -46,7 +46,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("region") String region,
             Pageable pageable);
 
-    List<Product> findByStatus(String status);
+    @Query("SELECT p FROM Product p WHERE (p.status IS NULL OR p.status = :status)")
+    List<Product> findByStatus(@Param("status") String status);
+
+    @Query("SELECT p FROM Product p WHERE (p.status IS NULL OR p.status = 'Available')")
+    List<Product> findAllAvailableProducts();
 
     @Query("SELECT AVG(p.price) FROM Product p WHERE p.category.categoryName = :categoryName")
     Double findAveragePriceByCategory(@Param("categoryName") String categoryName);

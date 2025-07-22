@@ -2,6 +2,7 @@ package com.application.market.controller;
 
 import com.application.market.entity.Cart;
 import com.application.market.entity.User;
+import com.application.market.repository.ProductRepository;
 import com.application.market.service.CartService;
 import com.application.market.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +23,17 @@ public class HomeController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private ProductRepository productRepository;
+
     @GetMapping("/index")
     public String home(Model model){
         model.addAttribute("page", "home");
+
+        // Add some debug info to see if products exist
+        long totalProducts = productRepository.count();
+        System.out.println("Total products in database: " + totalProducts);
+
         return "index";
     }
 

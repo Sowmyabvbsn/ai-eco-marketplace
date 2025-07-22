@@ -59,6 +59,10 @@ public class ShopController {
                        @RequestParam(value = "keyword", required = false) String keyword,
                        Model model) {
 
+        System.out.println("Shop controller called with parameters:");
+        System.out.println("Page: " + page + ", Category: " + category + ", Keyword: " + keyword);
+        System.out.println("MinPrice: " + minPrice + ", MaxPrice: " + maxPrice + ", Region: " + region);
+
         if (minPrice == null) minPrice = 0.0;
         if (maxPrice == null) maxPrice = Double.MAX_VALUE;
 
@@ -89,8 +93,13 @@ public class ShopController {
             productPage = productService.getProductsWithFilters(category, minPrice, maxPrice, region, pageable);
         }
 
+        System.out.println("Found " + productPage.getTotalElements() + " products");
+        System.out.println("Products on current page: " + productPage.getContent().size());
+
         long totalProducts = productService.countAllProducts();
         Map<String, Long> productCounts = productService.countProductsPerCategory();
+
+        System.out.println("Total products in database: " + totalProducts);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
